@@ -110,7 +110,6 @@ Architecture :
 
   At a high level, we study SERV as a collection of interacting blocks:
 
-  '''
                   +----------------------+
                   |      RISC-V          |
                   |    Instruction       |
@@ -145,7 +144,6 @@ Architecture :
                    +----------------------+
                    |   Memory Interface   |
                    +----------------------+
-  '''
   
   The actual SERV implementation is more specialized than this simplified diagram, and one of the main goals of this repository is to understand how the different RTL modules fit together.
 
@@ -159,23 +157,19 @@ Why a Serial CPU?
      
      Parallel CPU:
 
-     '''
        +---+---+---+---+---+---+---+---+
        |31 |30 |29 |...| 3 | 2 | 1 | 0 |
        +---+---+---+---+---+---+---+---+
                        |
                        v
               Process in parallel
-     '''
      
      SERV:
 
-     '''
        bit 0 -> bit 1 -> bit 2 -> ... -> bit 31
                   |
                   v
               Process serially
-        '''
         
 This significantly reduces the amount of hardware required. The trade-off is that an operation takes multiple clock cycles. Understanding this trade-off is one of the key takeaways from studying SERV.
 
@@ -203,11 +197,9 @@ Things Plan to Document :
   
      Understanding how the fields of a RISC-V instruction are interpreted:Plaintext
 
-      '''
        +---------+---------+---------+---------+---------+---------+
        | funct7  |   rs2   |   rs1   | funct3  |   rd    | opcode  |
        +---------+---------+---------+---------+---------+---------+
-     '''
      
   We connect these instruction fields to the corresponding control signals in the RTL.
   
@@ -225,7 +217,6 @@ Things Plan to Document :
   
      One of the main areas we want to understand is how common operations are implemented using a bit-serial datapath:
   
-     '''
         Operand A
             |
             v
@@ -237,7 +228,6 @@ Things Plan to Document :
             ^
             |
         Operand B
-     '''
      
     Rather than calculating the complete result in one cycle, the datapath works through the bits over multiple cycles with feedback carry registers.
   
