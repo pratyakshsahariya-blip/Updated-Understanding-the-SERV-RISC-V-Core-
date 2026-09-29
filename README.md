@@ -24,45 +24,55 @@
 
 What Are We Understanding?
 
-Going through the SERV source code and trying to understand the complete path of an instruction through the processor.
+  Going through the SERV source code and trying to understand the complete path of an instruction through the processor.
 
-Some of the questions we are exploring—along with detailed technical explanations from the RTL—include:
+  Some of the questions we are exploring—along with detailed technical explanations from the RTL—include:
 
 1. How is a RISC-V instruction fetched?
    
-   RTL Implementation: SERV maintains the Program Counter (PC) value and sends it out via an instruction memory interface (often wrapped in a simple Wishbone bus protocol).
-   The Process: The memory or instruction cache returns a 32-bit instruction word. Because SERV is bit-serial in its execution, the fetched 32-bit instruction is typically captured and stored locally in instruction decode registers so that fields can be sliced or scanned as needed by the control logic over multiple execution cycles.
+   RTL Implementation:
+
+     SERV maintains the Program Counter (PC) value and sends it out via an instruction memory interface (often wrapped in a simple Wishbone bus protocol).
+   
+   The Process:
+     The memory or instruction cache returns a 32-bit instruction word. Because SERV is bit-serial in its execution, the fetched 32-bit instruction is typically captured and stored locally in instruction decode registers so that fields can be sliced or scanned as needed by the control logic over multiple execution cycles.
 
 2. How is the instruction decoded?
 
-      RTL Implementation: The instruction word is parsed using standard RISC-V bitfield extractions:
+      RTL Implementation:
+        The instruction word is parsed using standard RISC-V bitfield extractions:
 
-      opcode: bits [6:0]
-      rd: bits [11:7]
-      funct3: bits
-      rs1: bits
-      rs2: bits
-      funct7: bits
+          opcode: bits [6:0]
+          rd: bits [11:7]
+          funct3: bits
+          rs1: bits
+          rs2: bits
+          funct7: bits
 
-      Control Mapping: These fields feed directly into the central state machine (serv_controller or equivalent FSM blocks) to assert control lines for ALU operations, register file addressing, and memory read/write requests.
+      Control Mapping:
+        These fields feed directly into the central state machine (serv_controller or equivalent FSM blocks) to assert control lines for ALU operations, register file addressing, and memory read/write requests.
 
 3. How are registers read and written?
 
-   RTL Implementation: Unlike traditional register files built from large arrays of parallel flip-flops or RAM blocks with independent multi-port decoders, the SERV register file (serv_rf_top and related modules) is designed around shift registers.
+   RTL Implementation:
+     Unlike traditional register files built from large arrays of parallel flip-flops or RAM blocks with independent multi-port decoders, the SERV register file (serv_rf_top and related modules) is designed around shift registers.
 
    Serial Access:
-         
-       To read, the register index (rs1 or rs2) is selected, and the 32-bit value streams out bit-by-bit over 32 clock cycles (starting from bit 0 up to bit 31).
 
-       To write, incoming result bits are shifted back into the addressed destination register (rd) one bit per clock cycle.
+     To read, the register index (rs1 or rs2) is selected, and the 32-bit value streams out bit-by-bit over 32 clock cycles (starting from bit 0 up to bit 31).
 
-   The Zero Register ($x0$): Hardwired to zero. Logic blocks intercept reads to $x0$ to immediately stream out zeros, and writes to $x0$ are safely ignored/discarded.
+     To write, incoming result bits are shifted back into the addressed destination register (rd) one bit per clock cycle.
+
+   The Zero Register ($x0$):
+     Hardwired to zero. Logic blocks intercept reads to $x0$ to immediately stream out zeros, and writes to $x0$ are safely ignored/discarded.
 
 4. How does the ALU perform operations one bit at a time?
 
-   RTL Implementation: The serial ALU (serv_alu) contains primitive combinatorial logic (AND, OR, XOR, full adders) operating on a single bit slice per cycle.
+   RTL Implementation:
+     The serial ALU (serv_alu) contains primitive combinatorial logic (AND, OR, XOR, full adders) operating on a single bit slice per cycle.
 
-   Carry Management: For arithmetic operations like addition and subtraction, a carry-out bit is computed alongside the sum bit for the current bit position. This carry-out is registered and fed back as the carry-in for the next clock cycle (representing the next bit position, from bit 0 to bit 31).
+   Carry Management:
+     For arithmetic operations like addition and subtraction, a carry-out bit is computed alongside the sum bit for the current bit position. This carry-out is registered and fed back as the carry-in for the next clock cycle (representing the next bit position, from bit 0 to bit 31).
    
 5. How does the program counter work?
 
@@ -183,7 +193,7 @@ Things Plan to Document :
 
    Understanding how SERV obtains an instruction from memory and how the instruction reaches the execution logic.
 
-3. Instruction Decode
+2. Instruction Decode
 
    Understanding how the fields of a RISC-V instruction are interpreted:Plaintext
 
@@ -194,12 +204,15 @@ Things Plan to Document :
 We connect these instruction fields to the corresponding control signals in the RTL.
 
 3. Register File
+
    Understanding:
+
      How registers are stored (using shift-register topologies)
      How registers are read serially over 32 cycles
      How registers are written back bit-by-bit
      How the zero register ($x0$) is handled
      How serial processing interacts with the register file
+
 4. Serial ALU
 
    One of the main areas we want to understand is how common operations are implemented using a bit-serial datapath:
@@ -216,10 +229,12 @@ We connect these instruction fields to the corresponding control signals in the 
           |
       Operand B
       
-Rather than calculating the complete result in one cycle, the datapath works through the bits over multiple cycles with feedback carry registers.
+  Rather than calculating the complete result in one cycle, the datapath works through the bits over multiple cycles with feedback carry registers.
 
 5. Program Counter
+   
     Investigating how the PC is updated for:
+   
       Sequential execution (incrementing)
       Conditional branches
       Jumps (jal)
@@ -228,11 +243,22 @@ Rather than calculating the complete result in one cycle, the datapath works thr
 
 6. Load and Store Instructions
 
-   Understanding how memory addresses are generated and how data moves between the processor and memory, including how multi-byte values are handled despite the serial nature of the core.7. Control and SequencingA major part of understanding SERV is understanding when each operation happens. We trace internal control signals and state transitions to see how a single RISC-V instruction is broken into multiple steps.Example Instruction TracingPlaintextInstruction:
-    ADD x3, x1, x2
+   Understanding how memory addresses are generated and how data moves between the processor and memory, including how multi-byte values are handled despite the serial nature of the core.
 
-Goal:
-    x3 = x1 + x2
+7. Control and Sequencing
+
+   A major part of understanding SERV is understanding when each operation happens.
+
+   We trace internal control signals and state transitions to see how a single RISC-V instruction is broken into multiple steps.
+
+   Example :
+     Instruction Tracing Instruction:
+   
+        ADD x3, x1, x2
+
+     Goal:
+   
+        x3 = x1 + x2
 
 Questions to trace:
 
@@ -249,7 +275,7 @@ Questions to trace:
 
 ## RISC-V ISA :
 
-SERV implements a small RISC-V ISA subset (RV32E/RV32I), making it particularly interesting for understanding the relationship between an ISA and its hardware implementation. As part of this project, we study relevant RISC-V instructions and map them directly to the RTL implementation, focusing on the hardware rather than simply memorizing instructions.Why SERV?SERV demonstrates that a CPU does not necessarily need a large, complicated parallel datapath. A processor can be constructed using a very small amount of hardware by trading parallelism and performance for extreme simplicity and area efficiency, making it an invaluable design to study for mastering the fundamentals of CPU architecture.Repository Status
+SERV implements a small RISC-V ISA subset (RV32E/RV32I), making it particularly interesting for understanding the relationship between an ISA and its hardware implementation. As part of this project, we study relevant RISC-V instructions and map them directly to the RTL implementation, focusing on the hardware rather than simply memorizing instructions.Why SERV?SERV demonstrates that a CPU does not necessarily need a large, complicated parallel datapath. A processor can be constructed using a very small amount of hardware by trading parallelism and performance for extreme simplicity and area efficiency, making it an invaluable design to study for mastering the fundamentals of CPU architecture.
 
 ## 🚧 Work in Progress :
 
