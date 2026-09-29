@@ -110,40 +110,40 @@ Architecture :
 
   At a high level, we study SERV as a collection of interacting blocks:
 
-                  +----------------------+
-                  |      RISC-V          |
-                  |    Instruction       |
-                  +----------+-----------+
-                             |
-                             v
-                  +----------------------+
-                  |   Instruction        |
-                  |     Decode           |
-                  +----------+-----------+
-                             |
-                             v
-          +------------------+------------------+
-          |                                     |
-          v                                     v
-   +---------------+                     +---------------+
-   | Register File |                     |  Control /    |
-   |               |                     |   Sequencing  |
-   +-------+-------+                     +-------+-------+
-           |                                     |
-           +------------------+------------------+
-                              |
-                              v
-                   +----------------------+
-                   |    Serial Datapath   |
-                   |                      |
-                   |  ALU / Shifters /    |
-                   | Address Generation   |
-                   +----------+-----------+
-                              |
-                              v
-                   +----------------------+
-                   |   Memory Interface   |
-                   +----------------------+
+                            +----------------------+
+                            |      RISC-V          |
+                            |    Instruction       |
+                            +----------+-----------+
+                                       |
+                                       v
+                            +----------------------+
+                            |   Instruction        |
+                            |     Decode           |
+                            +----------+-----------+
+                                       |
+                                       v
+                    +------------------+------------------+
+                    |                                     |
+                    v                                     v
+             +---------------+                     +---------------+
+             | Register File |                     |  Control /    |
+             |               |                     |   Sequencing  |
+             +-------+-------+                     +-------+-------+
+                     |                                     |
+                     +------------------+------------------+
+                                        |
+                                        v
+                             +----------------------+
+                             |    Serial Datapath   |
+                             |                      |
+                             |  ALU / Shifters /    |
+                             | Address Generation   |
+                             +----------+-----------+
+                                        |
+                                        v
+                             +----------------------+
+                             |   Memory Interface   |
+                             +----------------------+
   
   The actual SERV implementation is more specialized than this simplified diagram, and one of the main goals of this repository is to understand how the different RTL modules fit together.
 
