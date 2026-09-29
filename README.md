@@ -109,7 +109,8 @@ What Are We Understanding?
 Architecture :
 
   At a high level, we study SERV as a collection of interacting blocks:
-  
+
+  '''
                   +----------------------+
                   |      RISC-V          |
                   |    Instruction       |
@@ -144,7 +145,8 @@ Architecture :
                    +----------------------+
                    |   Memory Interface   |
                    +----------------------+
-
+  '''
+  
   The actual SERV implementation is more specialized than this simplified diagram, and one of the main goals of this repository is to understand how the different RTL modules fit together.
 
 Why a Serial CPU?
@@ -156,21 +158,25 @@ Why a Serial CPU?
      32-bit operation
      
      Parallel CPU:
+
+     '''
        +---+---+---+---+---+---+---+---+
        |31 |30 |29 |...| 3 | 2 | 1 | 0 |
        +---+---+---+---+---+---+---+---+
                        |
                        v
               Process in parallel
-     
+     '''
      
      SERV:
-     
+
+     '''
        bit 0 -> bit 1 -> bit 2 -> ... -> bit 31
                   |
                   v
               Process serially
-              
+        '''
+        
 This significantly reduces the amount of hardware required. The trade-off is that an operation takes multiple clock cycles. Understanding this trade-off is one of the key takeaways from studying SERV.
 
 Learning Approach :
@@ -189,76 +195,80 @@ Learning Approach :
 
 Things Plan to Document :
 
-1. Instruction Fetch
+  1. Instruction Fetch
+  
+     Understanding how SERV obtains an instruction from memory and how the instruction reaches the execution logic.
+  
+  2. Instruction Decode
+  
+     Understanding how the fields of a RISC-V instruction are interpreted:Plaintext
 
-   Understanding how SERV obtains an instruction from memory and how the instruction reaches the execution logic.
-
-2. Instruction Decode
-
-   Understanding how the fields of a RISC-V instruction are interpreted:Plaintext
-
-     +---------+---------+---------+---------+---------+---------+
-     | funct7  |   rs2   |   rs1   | funct3  |   rd    | opcode  |
-     +---------+---------+---------+---------+---------+---------+
-   
-We connect these instruction fields to the corresponding control signals in the RTL.
-
-3. Register File
-
-   Understanding:
-
-     How registers are stored (using shift-register topologies)
-     How registers are read serially over 32 cycles
-     How registers are written back bit-by-bit
-     How the zero register ($x0$) is handled
-     How serial processing interacts with the register file
-
-4. Serial ALU
-
-   One of the main areas we want to understand is how common operations are implemented using a bit-serial datapath:
-
-      Operand A
-          |
-          v
-      +-------+
-      |       |
-      |  ALU  | ---> Result bit
-      |       |
-      +-------+
-          ^
-          |
-      Operand B
-      
-  Rather than calculating the complete result in one cycle, the datapath works through the bits over multiple cycles with feedback carry registers.
-
-5. Program Counter
-   
-    Investigating how the PC is updated for:
-   
-      Sequential execution (incrementing)
-      Conditional branches
-      Jumps (jal)
-      Jump-and-link instructions (jalr)
-      Exceptions or other control-flow changes where applicable
-
-6. Load and Store Instructions
-
-   Understanding how memory addresses are generated and how data moves between the processor and memory, including how multi-byte values are handled despite the serial nature of the core.
-
-7. Control and Sequencing
-
-   A major part of understanding SERV is understanding when each operation happens.
-
-   We trace internal control signals and state transitions to see how a single RISC-V instruction is broken into multiple steps.
-
-   Example :
-     Instruction Tracing Instruction:
-   
-        ADD x3, x1, x2
-
-     Goal:
-   
-        x3 = x1 + x2
+      '''
+       +---------+---------+---------+---------+---------+---------+
+       | funct7  |   rs2   |   rs1   | funct3  |   rd    | opcode  |
+       +---------+---------+---------+---------+---------+---------+
+     '''
+     
+  We connect these instruction fields to the corresponding control signals in the RTL.
+  
+  4. Register File
+  
+     Understanding:
+  
+       How registers are stored (using shift-register topologies)
+       How registers are read serially over 32 cycles
+       How registers are written back bit-by-bit
+       How the zero register ($x0$) is handled
+       How serial processing interacts with the register file
+  
+  5. Serial ALU
+  
+     One of the main areas we want to understand is how common operations are implemented using a bit-serial datapath:
+  
+     '''
+        Operand A
+            |
+            v
+        +-------+
+        |       |
+        |  ALU  | ---> Result bit
+        |       |
+        +-------+
+            ^
+            |
+        Operand B
+     '''
+     
+    Rather than calculating the complete result in one cycle, the datapath works through the bits over multiple cycles with feedback carry registers.
+  
+  5. Program Counter
+     
+      Investigating how the PC is updated for:
+     
+        Sequential execution (incrementing)
+        Conditional branches
+        Jumps (jal)
+        Jump-and-link instructions (jalr)
+        Exceptions or other control-flow changes where applicable
+  
+  6. Load and Store Instructions
+  
+     Understanding how memory addresses are generated and how data moves between the processor and memory, including how multi-byte values are handled despite the serial nature of the core.
+  
+  7. Control and Sequencing
+  
+     A major part of understanding SERV is understanding when each operation happens.
+  
+     We trace internal control signals and state transitions to see how a single RISC-V instruction is broken into multiple steps.
+  
+     Example :
+       Instruction Tracing Instruction:
+     
+          ADD x3, x1, x2
+  
+       Goal:
+     
+          x3 = x1 + x2
 
 Questions to trace:
 
