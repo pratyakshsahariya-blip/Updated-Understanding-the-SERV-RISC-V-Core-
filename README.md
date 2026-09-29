@@ -197,9 +197,9 @@ Things Plan to Document :
   
      Understanding how the fields of a RISC-V instruction are interpreted:Plaintext
 
-       +---------+---------+---------+---------+---------+---------+
-       | funct7  |   rs2   |   rs1   | funct3  |   rd    | opcode  |
-       +---------+---------+---------+---------+---------+---------+
+               +---------+---------+---------+---------+---------+---------+
+               | funct7  |   rs2   |   rs1   | funct3  |   rd    | opcode  |
+               +---------+---------+---------+---------+---------+---------+
      
   We connect these instruction fields to the corresponding control signals in the RTL.
   
@@ -217,17 +217,17 @@ Things Plan to Document :
   
      One of the main areas we want to understand is how common operations are implemented using a bit-serial datapath:
   
-        Operand A
-            |
-            v
-        +-------+
-        |       |
-        |  ALU  | ---> Result bit
-        |       |
-        +-------+
-            ^
-            |
-        Operand B
+                Operand A
+                    |
+                    v
+                +-------+
+                |       |
+                |  ALU  | ---> Result bit
+                |       |
+                +-------+
+                    ^
+                    |
+                Operand B
      
     Rather than calculating the complete result in one cycle, the datapath works through the bits over multiple cycles with feedback carry registers.
   
